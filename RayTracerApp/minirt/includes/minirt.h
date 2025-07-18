@@ -94,6 +94,7 @@ typedef struct s_rt
     int         bpp;
     int         line_len;
     int         endian;
+    long      render_time;
 }   t_rt;
 
 /* prototypes */

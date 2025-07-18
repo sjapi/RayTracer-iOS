@@ -14,7 +14,7 @@
 		10F557852E276D2800DF898F /* Exceptions for "RayTracerApp" folder in "RayTracerApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Support/Info.plist,
 			);
 			target = 10F557722E276D2600DF898F /* RayTracerApp */;
 		};
@@ -149,7 +149,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = RYP579LK57;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RayTracerApp/Info.plist;
+				INFOPLIST_FILE = RayTracerApp/Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -162,7 +162,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = sjapi.RayTracerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "RayTracerApp/Helpers/RayTracerApp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "RayTracerApp/Support/RayTracerApp-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -179,7 +179,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = RYP579LK57;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = RayTracerApp/Info.plist;
+				INFOPLIST_FILE = RayTracerApp/Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -192,7 +192,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = sjapi.RayTracerApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "RayTracerApp/Helpers/RayTracerApp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "RayTracerApp/Support/RayTracerApp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

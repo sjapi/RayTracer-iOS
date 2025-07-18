@@ -9,15 +9,28 @@ import UIKit
 import CoreMotion
 
 final class ViewController: UIViewController {
+    private var letsRerender: Bool = false {
+        didSet {
+            if letsRerender {
+                rerender(rt)
+                renderInfoView.update(Int32(rt.pointee.mode), rt.pointee.render_time)
+                image = convertCGImageToUIImage(context)
+                imageView.image = image
+            }
+        }
+    }
+    
     private let motionManager = CMMotionManager()
     
     private let bytesPerPixel: Int = 4
     private var bytesPerRow: Int = 0
     
-    private var width: CGFloat = 0
-    private var height: CGFloat = 0
+    private var win_width: CGFloat = 0
+    private var win_height: CGFloat = 0
     private var context: CGContext!
     private var pixelBuffer: UnsafeMutablePointer<UInt8>!
+    
+    private var renderInfoView: RenderInfoView!
     private var image: UIImage!
     private var imageView: UIImageView!
     
@@ -26,41 +39,35 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        width = view.bounds.width
-        height = view.bounds.width * 0.7
-        bytesPerRow = Int(width) * bytesPerPixel;
+        win_width = view.bounds.width
+        win_height = view.bounds.width * 0.7
+        bytesPerRow = Int(win_width) * bytesPerPixel;
         context = configureCGContext()
         pixelBuffer = configurePixelBuffer(context: context)
         render()
         image = convertCGImageToUIImage(context)
         imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 0, y: 50, width: width, height: height)
-        
-        let y = 50 + height + 20
-        createButton(title: "Q", id: Int(KEY_Q), x: 20, y: y)
-        createButton(title: "W", id: Int(KEY_W), x: 80, y: y)
-        createButton(title: "E", id: Int(KEY_E), x: 140, y: y)
-        createButton(title: "A", id: Int(KEY_A), x: 20, y: y + 60)
-        createButton(title: "S", id: Int(KEY_S), x: 80, y: y + 60)
-        createButton(title: "D", id: Int(KEY_D), x: 140, y: y + 60)
-        
-        createButton(title: "H", id: Int(KEY_H), x: 20, y: y + 150)
-        createButton(title: "J", id: Int(KEY_J), x: 80, y: y + 150)
-        createButton(title: "K", id: Int(KEY_K), x: 140, y: y + 150)
-        createButton(title: "L", id: Int(KEY_L), x: 200, y: y + 150)
-        
-        createButton(title: "R", id: Int(KEY_R), x: 20, y: y + 240)
-        createButton(title: "C", id: Int(KEY_C), x: 80, y: y + 240)
+        imageView.frame = CGRect(x: 0, y: 50 + 25, width: win_width, height: win_height)
         view.addSubview(imageView)
+        
+        configureInfoView()
+        createQWEASDControls()
+        createOtherControls()
     }
 }
 
 private extension ViewController {
+    func configureInfoView() {
+        renderInfoView = RenderInfoView(mode: Int32(rt.pointee.mode), renderTime: rt.pointee.render_time)
+        renderInfoView.frame.origin = CGPoint(x: 0, y: 50)
+        view.addSubview(renderInfoView)
+    }
+    
     func configureCGContext() -> CGContext {
         let context = CGContext(
             data: nil,
-            width: Int(width),
-            height: Int(height),
+            width: Int(win_width),
+            height: Int(win_height),
             bitsPerComponent: 8,
             bytesPerRow: bytesPerRow,
             space: CGColorSpaceCreateDeviceRGB(),
@@ -79,7 +86,7 @@ private extension ViewController {
         guard let data = context.data else {
             fatalError("Unable to get data from context")
         }
-        return data.bindMemory(to: UInt8.self, capacity: Int(width * height) * bytesPerPixel)
+        return data.bindMemory(to: UInt8.self, capacity: Int(win_width * win_height) * bytesPerPixel)
     }
     
     func convertCGImageToUIImage(_ context: CGContext) -> UIImage {
@@ -102,8 +109,8 @@ private extension ViewController {
         path.withCString { cString in
             let rtPtr = init_rt(
                 UnsafeMutablePointer(mutating: cString),
-                Int32(width),
-                Int32(height),
+                Int32(win_width),
+                Int32(win_height),
                 pixelBuffer,
                 Int32(bytesPerPixel * 8),
                 Int32(bytesPerRow)
@@ -116,38 +123,51 @@ private extension ViewController {
         }
     }
     
-    func createButton(title: String, id: Int, x: CGFloat, y: CGFloat) {
-        let button = UIButton(type: .system)
-        button.frame = CGRect(x: x, y: y, width: 50, height: 50)
-        button.backgroundColor = .systemGray6
-        button.setTitleColor(.black, for: .normal)
-        button.layer.cornerRadius = 12
-        button.setTitle(title, for: .normal)
-        button.tag = id  // вот ID кнопки
-        
-        button.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
-        
-        view.addSubview(button)
+    func createQWEASDControls() {
+        let qweasd: [KeyButton] = [
+            KeyButton(key: "Q", id: KEY_Q),
+            KeyButton(key: "W", id: KEY_W, color: .systemYellow),
+            KeyButton(key: "E", id: KEY_E),
+            KeyButton(key: "A", id: KEY_A, color: .systemPink),
+            KeyButton(key: "S", id: KEY_S, color: .systemCyan),
+            KeyButton(key: "D", id: KEY_D, color: .systemPurple),
+        ]
+        let inset = CGFloat(15)
+        let origin = CGPoint(x: inset, y: 50 + win_width + inset)
+        let side = CGFloat(60)
+        for (i, button) in qweasd.enumerated() {
+            button.handleTap { [weak self] in
+                guard let self else { return }
+                handle_qweasd(button.id, rt)
+                letsRerender = true
+            }
+            button.frame.origin = CGPoint(
+                x: origin.x + (side + inset) * CGFloat(Int(i % 3)),
+                y: origin.y + (side + inset) * CGFloat(Int(i / 3))
+            )
+            view.addSubview(button)
+        }
     }
     
-    @objc func buttonPressed(_ sender: UIButton) {
-        let key = sender.tag
-        var render = false
-        print(key)
-        if handle_qweasd(Int32(key), rt) {
-            render = true
-        }
-        if handle_hjkl(Int32(key), rt) {
-            render = true
-        }
-        if handle_other_keys(Int32(key), rt) {
-            render = true
-        }
-        if render {
-            rerender(rt)
-            
-            image = convertCGImageToUIImage(context)
-            imageView.image = image
+    func createOtherControls() {
+        let rc: [KeyButton] = [
+            KeyButton(key: "R", id: KEY_R),
+            KeyButton(key: "C", id: KEY_C),
+        ]
+        let inset = CGFloat(15)
+        let origin = CGPoint(x: inset, y: 50 + win_width + inset + 160)
+        let side = CGFloat(60)
+        for (i, button) in rc.enumerated() {
+            button.handleTap { [weak self] in
+                guard let self else { return }
+                handle_other_keys(button.id, rt)
+                letsRerender = true
+            }
+            button.frame.origin = CGPoint(
+                x: origin.x + (side + inset) * CGFloat(Int(i % 3)),
+                y: origin.y + (side + inset) * CGFloat(Int(i / 3))
+            )
+            view.addSubview(button)
         }
     }
 }

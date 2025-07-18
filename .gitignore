@@ -1,0 +1,21 @@
+# Ignore Xcode project user data
+**/xcuserdata/
+**/*.xccheckout
+**/*.xcuserstate
+**/*.xcworkspace/xcuserdata/
+
+# Ignore Xcode specific metadata
+**/DerivedData/
+
+# Xcode build папка
+build/
+
+# Swift Package Manager
+.build/
+Packages/
+
+# SwiftPM
+.swiftpm/
+
+.env
+*.xcconfig

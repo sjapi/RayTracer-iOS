@@ -166,13 +166,11 @@ void	render_scene(t_rt *info)
 	ray.origin = info->scene->cam->viewpoint;
 	step = (info->mode != RENDER_MODE) + 1;
 	y = 0;
-    static int count = 0;
 	while (y < info->height)
 	{
 		x = 0;
 		while (x < info->width)
 		{
-            count += 1;
 			init_ray(&ray, info, x, y);
 			hit.contour = false;
 			hit.reverse = false;
@@ -197,6 +195,6 @@ void	render_scene(t_rt *info)
 	}
 	draw_xyz_axis(info);
 	stop = current_time();
-	printf("Time %ld count %d\n", stop - start, count);
+    info->render_time = stop - start;
 	draw_info(info);
 }
