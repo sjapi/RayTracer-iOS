@@ -3,6 +3,7 @@
 **/*.xccheckout
 **/*.xcuserstate
 **/*.xcworkspace/xcuserdata/
+RayTracerApp.xcodeproj/project.xcworkspace/xcuserdata/032zolotarev.xcuserdatad/UserInterfaceState.xcuserstate
 
 # Ignore Xcode specific metadata
 **/DerivedData/

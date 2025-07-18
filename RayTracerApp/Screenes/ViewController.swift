@@ -33,6 +33,7 @@ final class ViewController: UIViewController {
     private var renderInfoView: RenderInfoView!
     private var image: UIImage!
     private var imageView: UIImageView!
+    private let joystick = Joystick()
     
     var rt: UnsafeMutablePointer<t_rt>!
     
@@ -51,18 +52,14 @@ final class ViewController: UIViewController {
         view.addSubview(imageView)
         
         configureInfoView()
-        createQWEASDControls()
-        createOtherControls()
+        configureQWEASDControls()
+        configureOtherControls()
+        configureJoystick()
     }
 }
 
+// MARK: Private Methods
 private extension ViewController {
-    func configureInfoView() {
-        renderInfoView = RenderInfoView(mode: Int32(rt.pointee.mode), renderTime: rt.pointee.render_time)
-        renderInfoView.frame.origin = CGPoint(x: 0, y: 50)
-        view.addSubview(renderInfoView)
-    }
-    
     func configureCGContext() -> CGContext {
         let context = CGContext(
             data: nil,
@@ -123,7 +120,7 @@ private extension ViewController {
         }
     }
     
-    func createQWEASDControls() {
+    func configureQWEASDControls() {
         let qweasd: [KeyButton] = [
             KeyButton(key: "Q", id: KEY_Q),
             KeyButton(key: "W", id: KEY_W, color: .systemYellow),
@@ -149,7 +146,7 @@ private extension ViewController {
         }
     }
     
-    func createOtherControls() {
+    func configureOtherControls() {
         let rc: [KeyButton] = [
             KeyButton(key: "R", id: KEY_R),
             KeyButton(key: "C", id: KEY_C),
@@ -168,6 +165,36 @@ private extension ViewController {
                 y: origin.y + (side + inset) * CGFloat(Int(i / 3))
             )
             view.addSubview(button)
+        }
+    }
+    
+    func configureInfoView() {
+        renderInfoView = RenderInfoView(mode: Int32(rt.pointee.mode), renderTime: rt.pointee.render_time)
+        renderInfoView.frame.origin = CGPoint(x: 0, y: 50)
+        view.addSubview(renderInfoView)
+    }
+    
+    func configureJoystick() {
+        joystick.center = CGPoint(x: 300, y: 700)
+        view.addSubview(joystick)
+        joystick.onChange = { [weak self] vector in
+            guard let self else { return }
+            
+            print(vector)
+            let threshold: CGFloat = 0.95
+            
+            if vector.dx < -threshold {
+                handle_hjkl(KEY_H, rt)
+            } else if vector.dx > threshold {
+                handle_hjkl(KEY_L, rt)
+            }
+            
+            if vector.dy < -threshold {
+                handle_hjkl(KEY_K, rt)
+            } else if vector.dy > threshold {
+                handle_hjkl(KEY_J, rt)
+            }
+            letsRerender = true
         }
     }
 }
